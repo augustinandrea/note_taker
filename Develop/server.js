@@ -1,5 +1,7 @@
 // given dependencies
 const express = require("express");
+const path = require("path");
+
 var app = express();
 var PORT = process.env.PORT || 3001;
 
@@ -39,6 +41,7 @@ app.get("/api/notes", (req, res) => {
 app.post("/api/notes", (req, res) => {
     let read_sync = fs.readFileSync("db/db.json", "utf-8");
     read_sync = JSON.parse(read_sync);
+    let json_path = path.join(__dirname, "db/db.json");
 
     let new_db = {
         "title": req.body.title,
@@ -47,7 +50,14 @@ app.post("/api/notes", (req, res) => {
     }
 
     read_sync.push(new_db);
-    fs.writeFileSync( path.join(__dirname, "/db/db.json"), JSON.stringify(read_sync) );
+    fs.writeFileSync( json_path, JSON.stringify(read_sync), function (err){
+        if(err){
+            return console.log(err);
+        }
+        else{
+            console.log("new note.");
+        }
+    });
 
     res.send(true);
 
@@ -62,7 +72,6 @@ app.delete("/api/notes:id", (req, res) => {
             // use splice. I might be using this wrong
             database.splice(i, 1);
             break;
-
         }
     }
 
@@ -74,8 +83,8 @@ app.delete("/api/notes:id", (req, res) => {
         else{
             console.log("Note deleted.");
         }
-
     });
+
     res.json(database);
 
 });
