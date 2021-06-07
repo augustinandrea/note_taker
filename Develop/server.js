@@ -39,6 +39,8 @@ app.get("/api/notes", (req, res) => {
 
 // saving the notes
 app.post("/api/notes", (req, res) => {
+console.log('Start of app.post');
+
     let read_sync = fs.readFileSync("db/db.json", "utf-8");
     read_sync = JSON.parse(read_sync);
     let json_path = path.join(__dirname, "db/db.json");
@@ -63,20 +65,32 @@ app.post("/api/notes", (req, res) => {
 
 });
 
-app.delete("/api/notes:id", (req, res) => {
+// the delete on server side
+app.delete("/api/notes/:id", (req, res) => {
+    console.log('starting delete...');
+        
     let json_path = path.join(__dirname, "/db/db.json");
+    let notesJson = fs.readFileSync("db/db.json", "utf-8");
 
-    for(var i = 0; i < database.length(); i++){
+    let notesArray = JSON.parse(notesJson);
 
-        if(database[i].id == req.params.id){
+
+    console.log('deleting id: ' + req.params.id);
+    console.log('starting database: ' + notesArray);
+
+    for(var i = 0; i < notesArray.length; i++){
+
+        if(notesArray[i].id == req.params.id){
             // use splice. I might be using this wrong
-            database.splice(i, 1);
+            notesArray.splice(i, 1);
             break;
         }
     }
 
+    console.log('database after delete:' + notesArray);
+
     //rewrite the file without id indicated
-    fs.writeFileSync(json_path, JSON.stringify(database), function (err){
+    fs.writeFileSync(json_path, JSON.stringify(notesArray), function (err){
         if(err){
             return console.log(err);
         }
@@ -85,7 +99,7 @@ app.delete("/api/notes:id", (req, res) => {
         }
     });
 
-    res.json(database);
+    res.json(notesArray);
 
 });
 

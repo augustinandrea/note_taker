@@ -10,7 +10,7 @@ if (window.location.pathname === '/notes.html') {
   saveNoteBtn = document.querySelector('.save-note');
   newNoteBtn = document.querySelector('.new-note');
   noteList = document.querySelector('.list-container .list-group');
-  console.log('line 13');
+  console.log(noteList);
 }
 
 // Show an element
@@ -27,7 +27,7 @@ const hide = (elem) => {
 let activeNote = {};
 
 const getNotes = () =>
-  fetch('/api/notes.html', {
+  fetch('/api/notes', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -43,13 +43,15 @@ const saveNote = (note) =>
     body: JSON.stringify(note),
   });
 
-const deleteNote = (id) =>
-  fetch(`/api/notes/${id}`, {
+const deleteNote = (id) => {
+  console.log('In deleteNote: ' + id);
+  return fetch(`/api/notes/${id}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
     },
   });
+};
 
 const renderActiveNote = () => {
   hide(saveNoteBtn);
@@ -90,6 +92,8 @@ const handleNoteDelete = (e) => {
     activeNote = {};
   }
 
+  console.log('deleting: ' + noteId);
+
   deleteNote(noteId).then(() => {
     getAndRenderNotes();
     renderActiveNote();
@@ -120,10 +124,10 @@ const handleRenderSaveBtn = () => {
 // Render the list of note titles
 const renderNoteList = async (notes) => {
   let jsonNotes = await notes.json();
-  console.log(jsonNotes);
 
-  if (window.location.pathname === '/notes') {
-    noteList.forEach((el) => (el.innerHTML = ''));
+  if (window.location.pathname === '/notes.html') {
+    document.querySelector('.list-group').innerHTML = '';
+    //noteList.forEach((el) => (el.innerHTML = ''));
   }
 
   let noteListItems = [];
@@ -141,10 +145,6 @@ const renderNoteList = async (notes) => {
     spanEl.addEventListener('click', handleNoteView);
   
     liEl.append(spanEl);
-
-    //fubar = document.querySelector('list-group');
-    //console.log(fubar);
-    //noteList.append(liEl);
 
     if (delBtn) {
       const delBtnEl = document.createElement('i');
